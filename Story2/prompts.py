@@ -140,9 +140,7 @@ Return **only** valid JSON (no markdown) with the following top-level structure:
     {
       "node_name": "<UPPER-SNAKE-CASE TERM>",
       "node_description": "<VERBOSE TERM DESCRIPTION>",
-      "isIntervention": 0 | 1,  // 0 = Concept, 1 = Intervention
-
-      // include BOTH of these ONLY when isIntervention == 1
+      "isIntervention": 1
       "stage_in_pipeline": <integer 0-5>   // 0 pre-training … 5 other
       "maturity_level": <integer 1-5>   // 1 theory-only … 5 verified on 100B+ LLM
     },
@@ -159,11 +157,11 @@ Work through the paper in the input using the following internal reasoning steps
 1. **Intervention Node sweep** – Scan methods, experiments, results, evaluations for any *method, treatment, algorithm, dataset, training trick, measurement, or policy* proposed or empirically tested and create a NODE object for each.
   • Normalise each node_name to UPPER-SNAKE-CASE.
   • Write a concise but informative node_description (1-2 sentences) for each intervention, based on the paper’s own wording.
-  • Decide whether isIntervention = 1.  
+  • Assign value for isIntervention = 1.  
   • Infer stage_in_pipeline and maturity_level from context (e.g. “during fine-tuning we…”, “tested on 7B model…”, “deployed in product…”).
 
 2. **Validation sweep** – Ensure:  
-  • No duplicate nodes (same node_name) in the results.
+  • No duplicate nodes (same node_name) in the results. 
   • JSON is syntactically valid and matches the schema exactly.
 
 IMPORTANT RULES  
@@ -175,6 +173,7 @@ IMPORTANT RULES
 
 END OF INSTRUCTIONS
 """
+
 
 PROMPT_EDGES = """
 SYSTEM:
