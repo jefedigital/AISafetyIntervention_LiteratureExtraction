@@ -22,7 +22,7 @@ Return **only** valid JSON (no markdown) with the following top-level structure:
       "isIntervention": 0 | 1,  // 0 = Concept, 1 = Intervention
 
       // include BOTH of these ONLY when isIntervention == 1
-      "stage_in_pipeline": <integer 0-5>   // 0 pre-training … 5 other
+      "pipeline_stage": <integer 0-5>   // 0 pre-training … 5 other
       "maturity_level": <integer 1-5>   // 1 theory-only … 5 verified on 100B+ LLM
     },
     ...
@@ -30,7 +30,7 @@ Return **only** valid JSON (no markdown) with the following top-level structure:
 
   "edges": [
     {
-      "edge_name": "<UPPER-SNAKE-CASE RELATION NAME>",  // e.g. "LEADS TO", "CAUSES", "IMPROVES"
+      "edge_name": "<UPPER-SNAKE-CASE RELATION NAME>",
       "edge_description": "<VERBOSE RELATION DESCRIPTION>",
       "source_node": ["<node_name>", ...],   // must match nodes[].node_name exactly
       "target_node": ["<node_name>", ...],
@@ -47,7 +47,7 @@ NO OTHER FIELDS ARE ALLOWED.
 Work through the paper in the input using the following internal reasoning steps.
 
 1. **Concept Node sweep** – Scan abstract, introduction, related-work, methods, discussion, and conclusion for key *problems, ideas, or theoretical constructs* and create a NODE object for each. 
-  • Normalise each node_name to UPPER-SNAKE-CASE.  
+  • Normalise each node_name to UPPER-SNAKE-CASE.   
   • Merge obvious synonyms in node_name; but keep distinct concepts if the paper treats them separately. 
   • Write a concise but informative node_description (1-2 sentences) for each concept, based on the paper’s own wording.
 
@@ -55,9 +55,11 @@ Work through the paper in the input using the following internal reasoning steps
   • Normalise each node_name to UPPER-SNAKE-CASE.
   • Write a concise but informative node_description (1-2 sentences) for each intervention, based on the paper’s own wording.
   • Decide whether isIntervention = 1.  
-  • Infer stage_in_pipeline and maturity_level from context (e.g. “during fine-tuning we…”, “tested on 7B model…”, “deployed in product…”). 
+  • Infer pipeline_stage and maturity_level from context (e.g. “during fine-tuning we…”, “tested on 7B model…”, “deployed in product…”). 
 
 3. **Edge sweep** – For every mention where a Concept causally affects, is addressed by, is improved by, or motivates an Intervention (or another Concept), create an EDGE object for each.
+  • Normalise each edge_name to UPPER-SNAKE-CASE.
+  • Write a concise but informative edge_description (1-2 sentences) for each edge, based on the paper’s own wording.
   • Direction always points from *cause / prerequisite / antecedent* → *effect / solution / outcome*.  
   • Estimate confidence from the paper’s own wording:  
     – speculative / future work ⇒ 1–2  
@@ -71,7 +73,7 @@ Work through the paper in the input using the following internal reasoning steps
 
 IMPORTANT RULES  
   • Return *only* the JSON object shown above – no commentary or markdown.
-  - Ensure valid JSON syntax (e.g. double quotes, no trailing commas, no curly quotes).
+  • Ensure valid JSON syntax (e.g. double quotes, no trailing commas, no curly quotes).
   • Do **not** include bibliographic metadata (DOI, authors, institutions, dates).  
   • Leave arrays empty when they have no elements.  
   • No extra fields or top-level wrapper arrays.
@@ -94,6 +96,7 @@ Return **only** valid JSON (no markdown) with the following top-level structure:
     {
       "node_name"     : "<UPPER-SNAKE-CASE TERM>",
       "node_description": "<VERBOSE TERM DESCRIPTION>",
+      "isIntervention": 0
     },
     ...
   ]
@@ -106,9 +109,10 @@ NO OTHER FIELDS ARE ALLOWED.
 Work through the paper in the input using the following internal reasoning steps.
 
 1. **Concept Node sweep** – Scan abstract, introduction, related-work, methods, discussion, and conclusion for key *problems, ideas, or theoretical constructs* and create a NODE object for each. 
-  • Normalise each node_name to UPPER-SNAKE-CASE.  
+  • Normalise each node_name to UPPER-SNAKE-CASE.   
   • Merge obvious synonyms in node_name; but keep distinct concepts if the paper treats them separately. 
   • Write a concise but informative node_description (1-2 sentences) for each concept, based on the paper’s own wording.
+  • Assign value of isIntervention = 0.  
 
 2. **Validation sweep** – Ensure:  
   • No duplicate nodes (same node_name) in the results. 
@@ -116,7 +120,7 @@ Work through the paper in the input using the following internal reasoning steps
 
 IMPORTANT RULES  
   • Return *only* the JSON object shown above – no commentary or markdown.
-  - Ensure valid JSON syntax (e.g. double quotes, no trailing commas, no curly quotes).
+  • Ensure valid JSON syntax (e.g. double quotes, no trailing commas, no curly quotes).
   • Do **not** include bibliographic metadata (DOI, authors, institutions, dates).  
   • Leave arrays empty when they have no elements.  
   • No extra fields or top-level wrapper arrays.
@@ -141,7 +145,7 @@ Return **only** valid JSON (no markdown) with the following top-level structure:
       "node_name": "<UPPER-SNAKE-CASE TERM>",
       "node_description": "<VERBOSE TERM DESCRIPTION>",
       "isIntervention": 1
-      "stage_in_pipeline": <integer 0-5>   // 0 pre-training … 5 other
+      "pipeline_stage": <integer 0-5>   // 0 pre-training … 5 other
       "maturity_level": <integer 1-5>   // 1 theory-only … 5 verified on 100B+ LLM
     },
     ...
@@ -157,8 +161,8 @@ Work through the paper in the input using the following internal reasoning steps
 1. **Intervention Node sweep** – Scan methods, experiments, results, evaluations for any *method, treatment, algorithm, dataset, training trick, measurement, or policy* proposed or empirically tested and create a NODE object for each.
   • Normalise each node_name to UPPER-SNAKE-CASE.
   • Write a concise but informative node_description (1-2 sentences) for each intervention, based on the paper’s own wording.
-  • Assign value for isIntervention = 1.  
-  • Infer stage_in_pipeline and maturity_level from context (e.g. “during fine-tuning we…”, “tested on 7B model…”, “deployed in product…”).
+  • Assign value of isIntervention = 1.  
+  • Infer pipeline_stage and maturity_level from context (e.g. “during fine-tuning we…”, “tested on 7B model…”, “deployed in product…”). 
 
 2. **Validation sweep** – Ensure:  
   • No duplicate nodes (same node_name) in the results. 
@@ -166,7 +170,7 @@ Work through the paper in the input using the following internal reasoning steps
 
 IMPORTANT RULES  
   • Return *only* the JSON object shown above – no commentary or markdown.
-  - Ensure valid JSON syntax (e.g. double quotes, no trailing commas, no curly quotes).
+  • Ensure valid JSON syntax (e.g. double quotes, no trailing commas, no curly quotes).
   • Do **not** include bibliographic metadata (DOI, authors, institutions, dates).  
   • Leave arrays empty when they have no elements.  
   • No extra fields or top-level wrapper arrays.
@@ -192,7 +196,7 @@ STRICT INPUT:
       "isIntervention": 0 | 1,  // 0 = Concept, 1 = Intervention
 
       // included ONLY when isIntervention == 1
-      "stage_in_pipeline": <integer 0-5>   // 0 pre-training … 5 other
+      "pipeline_stage": <integer 0-5>   // 0 pre-training … 5 other
       "maturity_level": <integer 1-5>   // 1 theory-only … 5 verified on 100B+ LLM
     },
     ...
@@ -205,7 +209,7 @@ Return **only** valid JSON (no markdown) with the following top-level structure:
 {
   "edges": [
     {
-      "edge_name": "<UPPER-SNAKE-CASE RELATION NAME>",  // e.g. "LEADS TO", "CAUSES", "IMPROVES"
+      "edge_name": "<UPPER-SNAKE-CASE RELATION NAME>", 
       "edge_description": "<VERBOSE RELATION DESCRIPTION>",
       "source_node": ["<node_name>", ...],   // must match nodes[].node_name exactly
       "target_node": ["<node_name>", ...],
@@ -222,6 +226,8 @@ NO OTHER FIELDS ARE ALLOWED.
 Work through the paper in the input using the following internal reasoning steps.
 
 1. **Edge sweep** – For every mention where a Concept causally affects, is addressed by, is improved by, or motivates an Intervention (or another Concept), create an EDGE object for each.
+  • Normalise each edge_name to UPPER-SNAKE-CASE.
+  • Write a concise but informative edge_description (1-2 sentences) for each edge, based on the paper’s own wording.
   • Direction always points from *cause / prerequisite / antecedent* → *effect / solution / outcome*.  
   • Estimate confidence from the paper’s own wording:  
     – speculative / future work ⇒ 1–2  
@@ -234,7 +240,7 @@ Work through the paper in the input using the following internal reasoning steps
 
 IMPORTANT RULES  
   • Return *only* the JSON object shown above – no commentary or markdown.
-  - Ensure valid JSON syntax (e.g. double quotes, no trailing commas, no curly quotes).
+  • Ensure valid JSON syntax (e.g. double quotes, no trailing commas, no curly quotes).
   • Do **not** include bibliographic metadata (DOI, authors, institutions, dates).  
   • Leave arrays empty when they have no elements.  
   • No extra fields or top-level wrapper arrays.
